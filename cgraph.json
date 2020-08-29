@@ -1,0 +1,36 @@
+{
+  "window":
+  {
+    "verbose": "false",
+    "type": "Window",
+    "low_latency": "true",
+    "sampling_frequency": "$(SAMPLE_RATE)",
+    "analysis_frame_size": "$(CORRELATION_WINDOW_SIZE_MS)",
+    "analysis_frame_step_size": "$(CORRELATION_WINDOW_STEP_SIZE_MS)",
+    "windowing_function": "rectangle",
+    "inputs":
+    {
+      "conversation_state": "4mic_convstate",
+      "streamed_audio": "audio_preproc_0"
+    },
+    "outputs":
+    {
+      "windowed_audio": "window_0"
+    }
+  },
+  "chunk_energy":
+  {
+    "verbose": "false",
+    "dB_energy": "false",
+    "type": "Energy",
+    "inputs":
+    {
+      "windowed_audio": "window_0",
+      "conversation_state": "4mic_convstate"
+    },
+    "outputs":
+    {
+      "features": "audio_chunk_energy_0"
+    }
+  }
+}

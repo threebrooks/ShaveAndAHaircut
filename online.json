@@ -1,0 +1,82 @@
+{
+  "global_opts":
+  {
+    "SAMPLE_RATE": "fillmein",
+    "CAPTURE_CHUNK_SIZE": "fillmein",
+    "CORRELATION_WINDOW_SIZE_MS": "$(CORRELATION_WINDOW_SIZE_MS)",
+    "CORRELATION_WINDOW_STEP_SIZE_MS": "$(CORRELATION_WINDOW_STEP_SIZE_MS)",
+    "OUTPUT_MODE": "fillmein"
+  },
+  "4mic": 
+  {
+    "verbose": "false",
+    "type": "SoundcardRecorder",
+    "sampling_rate": "$(SAMPLE_RATE)",
+    "num_channels": "4",
+    "sample_depth": "32",
+    "chunk_size": "$(CAPTURE_CHUNK_SIZE)",
+    "start_on_boot": "true",
+    "time_upsample_factor": "1",
+    "soundcard_identifier": "fillmein",
+    "outputs": 
+    {
+      "streamed_audio": "4mic_stream",
+      "conversation_state": "4mic_convstate"
+    }
+  },
+  "audio_preproc": 
+  {
+    "verbose": "false",
+    "type": "AudioPreProcessor",
+    "zero_mean": "false",
+    "preemphasis_factor": "0.0",
+    "target_sampling_rate": "$(SAMPLE_RATE)",
+    "max_out_channels": "4",
+    "output_scale": "4.656612875245796924105750827168e-10", // 1.0/INT32_MAX
+    "inputs": 
+    {
+      "conversation_state": "4mic_convstate",
+      "streamed_audio": "4mic_stream"
+    },
+    "outputs": 
+    {
+      "streamed_audio_0": "audio_preproc_0",
+      "streamed_audio_1": "audio_preproc_1",
+      "streamed_audio_2": "audio_preproc_2",
+      "streamed_audio_3": "audio_preproc_3"
+    }
+  },
+  "process":
+  {
+    "type": "SubModule",
+    "file": "cgraph.json",
+    "inputs":
+    {
+      "audio_preproc_0": "audio_preproc_0",
+      "audio_preproc_1": "audio_preproc_1",
+      "audio_preproc_2": "audio_preproc_2",
+      "audio_preproc_3": "audio_preproc_3",
+      "4mic_convstate": "4mic_convstate"
+    },
+    "outputs":
+    {
+    },
+    "override":
+    {
+    }
+  },
+  "audio_writer_allchan": 
+  {
+    "verbose": "false",
+    "type": "FileWriter",
+    "control_type": "single_on_startup",
+    "input_type": "audio",
+    "sample_depth": "32",
+    "output_file_prefix": "/ramdisk/mic_allchan_",
+    "inputs": 
+    {
+      "input_stream": "4mic_stream",
+      "conversation_state": "4mic_convstate"
+    }
+  }
+}
