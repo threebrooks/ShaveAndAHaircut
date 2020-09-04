@@ -35,6 +35,14 @@ def runme():
   #pull_endpoints.add("pull_test", ["preproc_audio", "energy"])
   
   godec.load_godec("online.json", ovs, push_endpoints, pull_endpoints, True)
+
+  recording = False
+  timestamp = -1
+  for line in sys.stdin:
+    recording = not recording
+    timestamp += 1
+    conv_message = godec.conversation_state_decoder_message(timestamp, "utt_id"+str(timestamp), not recording, "convo_id"+str(timestamp), not recording)
+    godec.push_message("soundcard_control", conv_message)
   
 #  num_samples = 16000000
 #  data = np.random.randn(num_samples).astype('c')
