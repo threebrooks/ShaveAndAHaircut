@@ -5,8 +5,8 @@
     "type": "Window",
     "low_latency": "true",
     "sampling_frequency": "$(SAMPLE_RATE)",
-    "analysis_frame_size": "$(CORRELATION_WINDOW_SIZE_MS)",
-    "analysis_frame_step_size": "$(CORRELATION_WINDOW_STEP_SIZE_MS)",
+    "analysis_frame_size": "$(ENERGY_WINDOW_SIZE_MS)",
+    "analysis_frame_step_size": "$(ENERGY_WINDOW_STEP_SIZE_MS)",
     "windowing_function": "rectangle",
     "inputs":
     {
@@ -15,7 +15,7 @@
     },
     "outputs":
     {
-      "windowed_audio": "window_0"
+      "windowed_audio": "window"
     }
   },
   "chunk_energy":
@@ -25,12 +25,25 @@
     "type": "Energy",
     "inputs":
     {
-      "windowed_audio": "window_0",
+      "windowed_audio": "window",
       "conversation_state": "4mic_convstate"
     },
     "outputs":
     {
-      "features": "audio_chunk_energy_0"
+      "features": "audio_chunk_energy"
+    }
+  },
+  "energy_writer": 
+  {
+    "verbose": "true",
+    "type": "FileWriter",
+    "control_type": "single_on_startup",
+    "input_type": "features",
+    "npz_file": "energy.npz",
+    "inputs": 
+    {
+      "input_stream": "audio_chunk_energy",
+      "conversation_state": "4mic_convstate"
     }
   }
 }

@@ -3,8 +3,8 @@
   {
     "SAMPLE_RATE": "fillmein",
     "CAPTURE_CHUNK_SIZE": "fillmein",
-    "CORRELATION_WINDOW_SIZE_MS": "$(CORRELATION_WINDOW_SIZE_MS)",
-    "CORRELATION_WINDOW_STEP_SIZE_MS": "$(CORRELATION_WINDOW_STEP_SIZE_MS)",
+    "ENERGY_WINDOW_SIZE_MS": "$(ENERGY_WINDOW_SIZE_MS)",
+    "ENERGY_WINDOW_STEP_SIZE_MS": "$(ENERGY_WINDOW_STEP_SIZE_MS)",
     "OUTPUT_MODE": "fillmein"
   },
   "4mic": 
@@ -15,9 +15,13 @@
     "num_channels": "4",
     "sample_depth": "32",
     "chunk_size": "$(CAPTURE_CHUNK_SIZE)",
-    "start_on_boot": "true",
+    "start_on_boot": "false",
     "time_upsample_factor": "1",
     "soundcard_identifier": "fillmein",
+    "inputs":
+    {
+      "control": "soundcard_control"
+    },
     "outputs": 
     {
       "streamed_audio": "4mic_stream",
@@ -67,12 +71,12 @@
   },
   "audio_writer_allchan": 
   {
-    "verbose": "false",
+    "verbose": "true",
     "type": "FileWriter",
     "control_type": "single_on_startup",
     "input_type": "audio",
     "sample_depth": "32",
-    "output_file_prefix": "/ramdisk/mic_allchan_",
+    "npz_file": "blabla",
     "inputs": 
     {
       "input_stream": "4mic_stream",
