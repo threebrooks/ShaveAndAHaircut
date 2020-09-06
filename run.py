@@ -9,16 +9,24 @@ def runme():
 
   sample_rate = 48000
   ovs.add("global_opts.SAMPLE_RATE",str(sample_rate))
+
   capture_chunk_size = 64
   ovs.add("global_opts.CAPTURE_CHUNK_SIZE",str(capture_chunk_size))
+
   energy_window_size = 1024
   energy_window_size_ms = 1000.0*energy_window_size/sample_rate
   ovs.add("global_opts.ENERGY_WINDOW_SIZE_MS",str(energy_window_size_ms))
   print("Energy window size "+str(energy_window_size)+"ms")
+
   energy_window_step_factor = 4
   energy_window_step_size_ms = energy_window_size_ms/energy_window_step_factor
   ovs.add("global_opts.ENERGY_WINDOW_STEP_SIZE_MS",str(energy_window_step_size_ms))
   print("Energy window step size "+str(energy_window_step_size_ms)+"ms")
+
+  decay_ms = 1000*10; # 10 seconds decay
+  decay_num_frames = int(decay_ms/energy_window_step_size_ms)
+  ovs.add("global_opts.DECAY_NUM_FRAMES",str(decay_num_frames))
+  print("Decay # frames"+str(decay_num_frames))
   
   mic_audio_recording=False
   if (not mic_audio_recording):

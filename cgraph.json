@@ -33,6 +33,28 @@
       "features": "audio_chunk_energy"
     }
   },
+  "feat_norm":
+  {
+    "verbose": "false",
+    "type": "FeatureNormalizer",
+    "feature_size": "1",
+    "processing_mode": "LowLatency",
+    "update_stats_every_n_frames": "100",
+    "normalization_type": "covariance",
+    "norm_means": "true",
+    "norm_vars": "true",
+    "covariance_type": "diagonal",
+    "decay_num_frames": "$(DECAY_NUM_FRAMES)",
+    "inputs":
+    {
+      "features": "audio_chunk_energy",
+      "conversation_state": "4mic_convstate"
+    },
+    "outputs":
+    {
+      "features": "norm_audio_chunk_energy"
+    }
+  },
   "energy_writer": 
   {
     "verbose": "false",
@@ -42,7 +64,7 @@
     "npz_file": "energy.npz",
     "inputs": 
     {
-      "input_stream": "audio_chunk_energy",
+      "input_stream": "norm_audio_chunk_energy",
       "conversation_state": "4mic_convstate"
     }
   }

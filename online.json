@@ -3,8 +3,9 @@
   {
     "SAMPLE_RATE": "fillmein",
     "CAPTURE_CHUNK_SIZE": "fillmein",
-    "ENERGY_WINDOW_SIZE_MS": "$(ENERGY_WINDOW_SIZE_MS)",
-    "ENERGY_WINDOW_STEP_SIZE_MS": "$(ENERGY_WINDOW_STEP_SIZE_MS)",
+    "ENERGY_WINDOW_SIZE_MS": "fillmein",
+    "ENERGY_WINDOW_STEP_SIZE_MS": "fillmein",
+    "DECAY_NUM_FRAMES": "fillmein",
     "OUTPUT_MODE": "fillmein"
   },
   "4mic": 
