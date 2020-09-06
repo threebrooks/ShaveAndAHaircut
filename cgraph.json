@@ -3,7 +3,7 @@
   {
     "verbose": "false",
     "type": "Window",
-    "low_latency": "true",
+    "low_latency": "false",
     "sampling_frequency": "$(SAMPLE_RATE)",
     "analysis_frame_size": "$(ENERGY_WINDOW_SIZE_MS)",
     "analysis_frame_step_size": "$(ENERGY_WINDOW_STEP_SIZE_MS)",
@@ -35,7 +35,7 @@
   },
   "energy_writer": 
   {
-    "verbose": "true",
+    "verbose": "false",
     "type": "FileWriter",
     "control_type": "single_on_startup",
     "input_type": "features",
