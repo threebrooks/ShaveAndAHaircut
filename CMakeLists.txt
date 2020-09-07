@@ -8,7 +8,7 @@ if (NOT DEFINED TSF_ROOT)
   message(FATAL_ERROR "Define TSF_ROOT")
 endif()
 
-project(godec_drumpi)
+project(godec_SAAH)
 
 # Default optimization
 if (NOT CMAKE_BUILD_TYPE) 
@@ -95,7 +95,7 @@ set(SOURCE_FILES
   src/godec_SAAH.cc
   )
 
-add_library(godec_drumpi SHARED ${SOURCE_FILES})
+add_library(godec_SAAH SHARED ${SOURCE_FILES})
 
 if(PLATFORM STREQUAL "RaspberryPi")
   set(PILIBS -lwiringPi)
@@ -103,13 +103,13 @@ endif()
 
 set(LINKER_LIBS -Wl,--no-undefined -ldl -lrt -lasound ${PILIBS} ${GODEC_LIBS} ${PYTHON_LIBRARIES} ${ZLIB_LIBRARY})
 
-target_link_libraries(godec_drumpi
+target_link_libraries(godec_SAAH
 	-Wl,--start-group
 	${LINKER_LIBS}
         Boost::program_options Boost::regex Boost::system Boost::serialization Boost::filesystem Boost::iostreams Boost::timer Boost::chrono Boost::thread
 	-Wl,--end-group
         )
-set_target_properties(godec_drumpi PROPERTIES OUTPUT_NAME "godec_drumpi")
+set_target_properties(godec_SAAH PROPERTIES OUTPUT_NAME "godec_SAAH")
 
-install (TARGETS godec_drumpi DESTINATION .)
+install (TARGETS godec_SAAH DESTINATION .)
 install (FILES ${PROJECT_SOURCE_DIR}/env.sh DESTINATION .)

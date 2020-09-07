@@ -55,6 +55,22 @@
       "features": "norm_audio_chunk_energy"
     }
   },
+  "SAAHDetect": 
+  {
+    "verbose": "false",
+    "type": "SAAH:SAAHDetect",
+    "impulse_threshold": "5.0",
+    "frame_step_size_ms": "$(ENERGY_WINDOW_STEP_SIZE_MS)",
+    "expected_bpm": "150",
+    "pattern_template": "0.0,1.0,1.75,2.0,3.0", 
+    "max_rmse": "0.0625", // 1/16.0
+    "max_speedup": "1.2",
+    "inputs": 
+    {
+      "features": "norm_audio_chunk_energy",
+      "conversation_state": "4mic_convstate"
+    }
+  },
   "energy_writer": 
   {
     "verbose": "false",

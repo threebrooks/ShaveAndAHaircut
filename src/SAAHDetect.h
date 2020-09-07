@@ -14,10 +14,15 @@ class SAAHDetectComponent : public LoopProcessor {
 
   private:
     void ProcessMessage(const DecoderMessageBlock& msgBlock);
+    bool isEvent(Vector x);
     float mImpulseThreshold;
     float mFrameStepSizeMs;
     float mAvgBPM;
-    std::vector<float> mTemplate;
+    Vector mTemplate;
     float mMaxRMSE;
     float mMaxSpeedup;
+
+    Vector mAccumEvents;
+    int64_t mTotalFrameCount;
+    bool mInsideEvent;
 };
