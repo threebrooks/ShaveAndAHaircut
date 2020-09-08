@@ -39,7 +39,7 @@
     "type": "FeatureNormalizer",
     "feature_size": "1",
     "processing_mode": "LowLatency",
-    "update_stats_every_n_frames": "100",
+    "update_stats_every_n_frames": "10",
     "normalization_type": "covariance",
     "norm_means": "true",
     "norm_vars": "true",
@@ -59,7 +59,7 @@
   {
     "verbose": "false",
     "type": "SAAH:SAAHDetect",
-    "impulse_threshold": "5.0",
+    "impulse_threshold": "2.0",
     "frame_step_size_ms": "$(ENERGY_WINDOW_STEP_SIZE_MS)",
     "expected_bpm": "150",
     "pattern_template": "0.0,1.0,1.75,2.0,3.0", 

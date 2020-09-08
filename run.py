@@ -10,7 +10,7 @@ def runme():
   sample_rate = 48000
   ovs.add("global_opts.SAMPLE_RATE",str(sample_rate))
 
-  capture_chunk_size = 64
+  capture_chunk_size = 256
   ovs.add("global_opts.CAPTURE_CHUNK_SIZE",str(capture_chunk_size))
 
   energy_window_size = 1024
@@ -44,13 +44,11 @@ def runme():
   
   godec.load_godec("online.json", ovs, push_endpoints, pull_endpoints, True)
 
-  recording = False
-  timestamp = -1
-  for line in sys.stdin:
-    recording = not recording
-    timestamp += 1
-    conv_message = godec.conversation_state_decoder_message(timestamp, "utt_id"+str(timestamp), not recording, "convo_id"+str(timestamp), not recording)
-    godec.push_message("soundcard_control", conv_message)
+  conv_message = godec.conversation_state_decoder_message(0, "utt_id0", False, "convo_id0", False)
+  godec.push_message("soundcard_control", conv_message)
+  input()
+  conv_message = godec.conversation_state_decoder_message(1, "utt_id0", True, "convo_id0", True)
+  godec.push_message("soundcard_control", conv_message)
   
 #  num_samples = 16000000
 #  data = np.random.randn(num_samples).astype('c')

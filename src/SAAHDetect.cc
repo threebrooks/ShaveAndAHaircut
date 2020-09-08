@@ -48,12 +48,14 @@ bool SAAHDetectComponent::isEvent(Vector x) {
   float rmse = 0;
   for(int x_idx = 0; x_idx < x.size(); x_idx++) {
     float x_val = x[x_idx];
-    rmse += (x_val-y_tilde[x_idx])*(x_val-y_tilde[x_idx]);
+    float y_val = y_tilde[x_idx];
+    rmse += (x_val-y_val)*(x_val-y_val);
   }
   rmse /= N;
   rmse = sqrt(rmse);
+  float speedup = (y[N-1]-y[0])/(x[N-1]-x[0]);
+  std::cout << "rmse: " << rmse << " speedup: " << speedup <<  std::endl;
   if (rmse > mMaxRMSE) return false;
-  float speedup = (y[-1]-y[0])/(x[-1]-x[0]);
   if ((speedup > mMaxSpeedup) || (speedup < 1/mMaxSpeedup))  return false;
   return true;
 }
@@ -61,9 +63,10 @@ bool SAAHDetectComponent::isEvent(Vector x) {
 void SAAHDetectComponent::ProcessMessage(const DecoderMessageBlock& msgBlock) {
     auto convStateMsg = msgBlock.get<ConversationStateDecoderMessage>(SlotConversationState);
     auto featsMsg = msgBlock.get<FeaturesDecoderMessage>(SlotFeatures);
-    const Vector feats = featsMsg->mFeatures;
+    const Vector feats = featsMsg->mFeatures.row(0);
 
-    double avg_bpf = (mAvgBPM/60.0)*mFrameStepSizeMs;
+
+    double avg_bpf = (mAvgBPM/60.0)*(mFrameStepSizeMs/1000.0);
     for(int data_idx = 0; data_idx < feats.size(); data_idx++) {
       mTotalFrameCount++;
       float data_val = feats(data_idx);
