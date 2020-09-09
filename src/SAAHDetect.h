@@ -22,7 +22,13 @@ class SAAHDetectComponent : public LoopProcessor {
     float mMaxRMSE;
     float mMaxSpeedup;
 
+    std::string mCommand;
+    bool mDeviceOn;
+
     Vector mAccumEvents;
     int64_t mTotalFrameCount;
+
     bool mInsideEvent;
+    float mInsideMaxIdx;
+    float mInsideMaxEnergy;
 };

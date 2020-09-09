@@ -4,8 +4,6 @@ import math
 import matplotlib.pyplot as plt
 
 def is_event(x, y):
-  #print("x: "+str(x))
-  #print("y: "+str(y))
   max_rmse = 1/16.0
   max_speedup = 1.2
 
@@ -18,18 +16,20 @@ def is_event(x, y):
   S_yy = np.sum(np.multiply(y,y))
   C = (S_x*S_y-N*S_xy)/(S_y*S_y-N*S_yy)
   D = (C*S_y-S_x)/N
-  print("C: "+str(C)+", D: "+str(D))
+  #print("C: "+str(C)+", D: "+str(D))
   y_tilde = C*y-D
-  print("y~: "+str(y_tilde))
+  x_tilde = (x+D)/C
   rmse = 0
+  print("x: "+str(x))
+  print("y: "+str(y))
   for x_idx, x_val in enumerate(x):
     rmse += (x_val-y_tilde[x_idx])*(x_val-y_tilde[x_idx])
   rmse /= N
   rmse = math.sqrt(rmse)
-  print("rmse: "+str(rmse))
+  speedup = (y[-1]-y[0])/(x[-1]-x[0])
+  print("rmse: "+str(rmse) + "speedup: "+str(speedup))
   if (rmse > max_rmse):
     return False
-  speedup = (y[-1]-y[0])/(x[-1]-x[0])
   if (speedup > max_speedup or speedup < 1/max_speedup):
     return False
   return True
@@ -46,13 +46,18 @@ avg_bpf = avg_bps*frame_step_rate
 print("avg_bpf: "+str(avg_bpf))
 live_events = np.zeros(0)
 inside_event = False
+inside_max_idx = -1
+inside_max_energy = -1E30
 for data_idx, data_val in enumerate(data):
   if (data_val > thresh):
-    if (not inside_event):
-      live_events = np.append(live_events, data_idx*avg_bpf)
-      print("Adding "+str(data_idx*avg_bpf)) 
     inside_event = True
-  else:
+    if (data_val > inside_max_energy):
+      inside_max_energy = data_val
+      inside_max_idx = data_idx
+  elif (data_val < 0.25*thresh):
+    if (inside_event):
+      live_events = np.append(live_events, inside_max_idx*avg_bpf)
+    inside_max_energy = -1E30
     inside_event = False
 
 template = np.array([0.0, 1.0, 1.75, 2.0, 3.0])
@@ -64,6 +69,6 @@ for live_event_idx, live_event_time in enumerate(data):
     print("Found event!")
 
 display_data = data
-plt.plot(range(len(display_data)),display_data)
+plt.plot(np.linspace(0.0, len(display_data)*avg_bpf,len(display_data)),display_data)
 plt.show()
 

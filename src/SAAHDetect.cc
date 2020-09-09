@@ -14,6 +14,7 @@ std::string SAAHDetectComponent::describeThyself() {
 SAAHDetectComponent::SAAHDetectComponent(std::string id, ComponentGraphConfig* configPt) :
     LoopProcessor(id,configPt) {
 
+    mCommand = configPt->get<std::string>("command", "Command");
     mImpulseThreshold = configPt->get<float>("impulse_threshold", "Threshold for detecting impulse");
     mFrameStepSizeMs = configPt->get<float>("frame_step_size_ms", "Frame step size in ms");
     mAvgBPM = configPt->get<float>("expected_bpm", "Expected BPM of the pattern");
@@ -29,7 +30,11 @@ SAAHDetectComponent::SAAHDetectComponent(std::string id, ComponentGraphConfig* c
     mMaxRMSE = configPt->get<float>("max_rmse", "max RMSE");
     mMaxSpeedup = configPt->get<float>("max_speedup", "max speedup");
     mInsideEvent = false;
+    mInsideMaxIdx = -1;
+    mInsideMaxEnergy = -FLT_MAX;
     mTotalFrameCount = 0;
+
+    mDeviceOn = false;
 
     std::list<std::string> requiredOutputSlots;
     initOutputs(requiredOutputSlots);
@@ -54,7 +59,6 @@ bool SAAHDetectComponent::isEvent(Vector x) {
   rmse /= N;
   rmse = sqrt(rmse);
   float speedup = (y[N-1]-y[0])/(x[N-1]-x[0]);
-  std::cout << "rmse: " << rmse << " speedup: " << speedup <<  std::endl;
   if (rmse > mMaxRMSE) return false;
   if ((speedup > mMaxSpeedup) || (speedup < 1/mMaxSpeedup))  return false;
   return true;
@@ -71,19 +75,27 @@ void SAAHDetectComponent::ProcessMessage(const DecoderMessageBlock& msgBlock) {
       mTotalFrameCount++;
       float data_val = feats(data_idx);
       if (data_val > mImpulseThreshold) {
-        if (!mInsideEvent) {
-          mAccumEvents.conservativeResize(mAccumEvents.size()+1);
-          mAccumEvents(mAccumEvents.size()-1) = (mTotalFrameCount-1)*avg_bpf;
-        }
         mInsideEvent = true;
-      } else {
+        if (data_val > mInsideMaxEnergy) {
+          mInsideMaxEnergy = data_val;
+          mInsideMaxIdx = mTotalFrameCount;
+        }
+     } else if (data_val < 0.25*mImpulseThreshold) {
+        if (mInsideEvent) {
+          mAccumEvents.conservativeResize(mAccumEvents.size()+1);
+          mAccumEvents(mAccumEvents.size()-1) = (mInsideMaxIdx-1)*avg_bpf;
+        }
+        mInsideMaxEnergy = -FLT_MAX;
         mInsideEvent = false;
       }
     }
     
     while(mAccumEvents.size() >= mTemplate.size()) {
       if (isEvent(mAccumEvents.head(mTemplate.size()))) {
+        mDeviceOn = !mDeviceOn;
+        std::string fullCommand = mCommand + " " + (mDeviceOn ? "on" : "off");
         std::cout << "Found event!" << std::endl;
+        system(fullCommand.c_str());
       }
       mAccumEvents = mAccumEvents.tail(mAccumEvents.size()-1);
     }

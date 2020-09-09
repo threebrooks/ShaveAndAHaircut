@@ -65,13 +65,14 @@
     "pattern_template": "0.0,1.0,1.75,2.0,3.0", 
     "max_rmse": "0.0625", // 1/16.0
     "max_speedup": "1.2",
+    "command": "./all_lights.sh",
     "inputs": 
     {
       "features": "norm_audio_chunk_energy",
       "conversation_state": "4mic_convstate"
     }
   },
-  "energy_writer": 
+  "#energy_writer": 
   {
     "verbose": "false",
     "type": "FileWriter",
