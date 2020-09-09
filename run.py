@@ -3,6 +3,7 @@ import godec
 import numpy as np
 import gc
 import subprocess
+import time
 
 def runme():
   ovs = godec.overrides()
@@ -46,7 +47,8 @@ def runme():
 
   conv_message = godec.conversation_state_decoder_message(0, "utt_id0", False, "convo_id0", False)
   godec.push_message("soundcard_control", conv_message)
-  input()
+  while(True):
+    time.sleep(1000000)
   conv_message = godec.conversation_state_decoder_message(1, "utt_id0", True, "convo_id0", True)
   godec.push_message("soundcard_control", conv_message)
   
