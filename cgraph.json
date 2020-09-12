@@ -59,7 +59,7 @@
   {
     "verbose": "false",
     "type": "SAAH:SAAHDetect",
-    "impulse_threshold": "1.0",
+    "impulse_threshold": "2.0",
     "frame_step_size_ms": "$(ENERGY_WINDOW_STEP_SIZE_MS)",
     "expected_bpm": "150",
     "pattern_template": "0.0,1.0,1.7,2.0,3.0", 
@@ -83,6 +83,20 @@
     "inputs": 
     {
       "input_stream": "norm_audio_chunk_energy",
+      "conversation_state": "4mic_convstate"
+    }
+  },
+  "#audio_writer": 
+  {
+    "verbose": "false",
+    "type": "FileWriter",
+    "control_type": "single_on_startup",
+    "input_type": "audio",
+    "output_file_prefix": "preproc_",
+    "sample_depth": "16",
+    "inputs": 
+    {
+      "input_stream": "audio_preproc_0",
       "conversation_state": "4mic_convstate"
     }
   }

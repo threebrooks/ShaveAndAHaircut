@@ -42,7 +42,7 @@ SAAHDetectComponent::SAAHDetectComponent(std::string id, ComponentGraphConfig* c
 }
 
 bool SAAHDetectComponent::isEvent(Vector x) {
-  //std::cout << x.transpose() << std::endl;
+  std::cout << x.transpose() << std::endl;
   auto& y = mTemplate;
   int N = x.size();
   float S_x = x.sum();
@@ -61,7 +61,7 @@ bool SAAHDetectComponent::isEvent(Vector x) {
   rmse /= N;
   rmse = sqrt(rmse);
   float speedup = (y[N-1]-y[0])/(x[N-1]-x[0]);
-  //std::cout << "rmse: " << rmse << " speedup: " << speedup << std::endl;
+  std::cout << "rmse: " << rmse << " speedup: " << speedup << std::endl;
   if (rmse > mMaxRMSE) return false;
   if ((speedup > mMaxSpeedup) || (speedup < 1/mMaxSpeedup))  return false;
   return true;
@@ -71,7 +71,6 @@ void SAAHDetectComponent::ProcessMessage(const DecoderMessageBlock& msgBlock) {
     auto convStateMsg = msgBlock.get<ConversationStateDecoderMessage>(SlotConversationState);
     auto featsMsg = msgBlock.get<FeaturesDecoderMessage>(SlotFeatures);
     const Vector feats = featsMsg->mFeatures.row(0);
-
 
     double avg_bpf = (mAvgBPM/60.0)*(mFrameStepSizeMs/1000.0);
     for(int data_idx = 0; data_idx < feats.size(); data_idx++) {
@@ -89,6 +88,7 @@ void SAAHDetectComponent::ProcessMessage(const DecoderMessageBlock& msgBlock) {
           if ((mTotalFrameCount-mImpulseBeginIdx) < mMaxImpulseLengthMs/mFrameStepSizeMs) {
             mAccumEvents.conservativeResize(mAccumEvents.size()+1);
             mAccumEvents(mAccumEvents.size()-1) = (mInsideMaxIdx-1)*avg_bpf;
+            //std::cout << "Added event at " << mAccumEvents(mAccumEvents.size()-1) << ", energy " << mInsideMaxEnergy << std::endl; 
           } else {
             std::cerr << "Too long, dropped. " << (mTotalFrameCount-mImpulseBeginIdx) << " vs " << (mMaxImpulseLengthMs/mFrameStepSizeMs) << std::endl;
           }

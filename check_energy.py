@@ -37,6 +37,7 @@ def is_event(x, y):
 energy = np.load("energy.npz")
 data_index = energy.files[0] 
 data = energy[data_index][0]
+#data = data[-400:]
 
 thresh = 1
 frame_step_rate = 5.33/1000.0
