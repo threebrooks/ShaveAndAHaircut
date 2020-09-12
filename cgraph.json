@@ -10,7 +10,7 @@
     "windowing_function": "rectangle",
     "inputs":
     {
-      "conversation_state": "4mic_convstate",
+      "conversation_state": "mic_convstate",
       "streamed_audio": "audio_preproc_0"
     },
     "outputs":
@@ -26,7 +26,7 @@
     "inputs":
     {
       "windowed_audio": "window",
-      "conversation_state": "4mic_convstate"
+      "conversation_state": "mic_convstate"
     },
     "outputs":
     {
@@ -48,7 +48,7 @@
     "inputs":
     {
       "features": "audio_chunk_energy",
-      "conversation_state": "4mic_convstate"
+      "conversation_state": "mic_convstate"
     },
     "outputs":
     {
@@ -70,7 +70,7 @@
     "inputs": 
     {
       "features": "norm_audio_chunk_energy",
-      "conversation_state": "4mic_convstate"
+      "conversation_state": "mic_convstate"
     }
   },
   "energy_writer": 
@@ -83,7 +83,7 @@
     "inputs": 
     {
       "input_stream": "norm_audio_chunk_energy",
-      "conversation_state": "4mic_convstate"
+      "conversation_state": "mic_convstate"
     }
   },
   "#audio_writer": 
@@ -97,7 +97,7 @@
     "inputs": 
     {
       "input_stream": "audio_preproc_0",
-      "conversation_state": "4mic_convstate"
+      "conversation_state": "mic_convstate"
     }
   }
 }

@@ -8,12 +8,12 @@
     "DECAY_NUM_FRAMES": "fillmein",
     "OUTPUT_MODE": "fillmein"
   },
-  "4mic": 
+  "mic": 
   {
     "verbose": "false",
     "type": "SoundcardRecorder",
     "sampling_rate": "$(SAMPLE_RATE)",
-    "num_channels": "4",
+    "num_channels": "1",
     "sample_depth": "32",
     "chunk_size": "$(CAPTURE_CHUNK_SIZE)",
     "start_on_boot": "false",
@@ -25,8 +25,8 @@
     },
     "outputs": 
     {
-      "streamed_audio": "4mic_stream",
-      "conversation_state": "4mic_convstate"
+      "streamed_audio": "mic_stream",
+      "conversation_state": "mic_convstate"
     }
   },
   "audio_preproc": 
@@ -36,19 +36,16 @@
     "zero_mean": "false",
     "preemphasis_factor": "0.0",
     "target_sampling_rate": "$(SAMPLE_RATE)",
-    "max_out_channels": "4",
+    "max_out_channels": "1",
     "output_scale": "4.656612875245796924105750827168e-10", // 1.0/INT32_MAX
     "inputs": 
     {
-      "conversation_state": "4mic_convstate",
-      "streamed_audio": "4mic_stream"
+      "conversation_state": "mic_convstate",
+      "streamed_audio": "mic_stream"
     },
     "outputs": 
     {
-      "streamed_audio_0": "audio_preproc_0",
-      "streamed_audio_1": "audio_preproc_1",
-      "streamed_audio_2": "audio_preproc_2",
-      "streamed_audio_3": "audio_preproc_3"
+      "streamed_audio_0": "audio_preproc_0"
     }
   },
   "process":
@@ -58,10 +55,7 @@
     "inputs":
     {
       "audio_preproc_0": "audio_preproc_0",
-      "audio_preproc_1": "audio_preproc_1",
-      "audio_preproc_2": "audio_preproc_2",
-      "audio_preproc_3": "audio_preproc_3",
-      "4mic_convstate": "4mic_convstate"
+      "mic_convstate": "mic_convstate"
     },
     "outputs":
     {
@@ -70,7 +64,7 @@
     {
     }
   },
-  "audio_writer_allchan": 
+  "#audio_writer_allchan": 
   {
     "verbose": "true",
     "type": "FileWriter",
@@ -80,8 +74,8 @@
     "npz_file": "blabla",
     "inputs": 
     {
-      "input_stream": "4mic_stream",
-      "conversation_state": "4mic_convstate"
+      "input_stream": "mic_stream",
+      "conversation_state": "mic_convstate"
     }
   }
 }
