@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def is_event(x, y):
   max_rmse = 1/16.0
-  max_speedup = 1.2
+  max_speedup = 1.5
 
   if (len(x) != len(y)):
     return False
@@ -38,7 +38,7 @@ energy = np.load("energy.npz")
 data_index = energy.files[0] 
 data = energy[data_index][0]
 
-thresh = 2
+thresh = 1
 frame_step_rate = 5.33/1000.0
 avg_bps = 150/60 # beats per second
 print("frame_step_rate: "+str(frame_step_rate))
@@ -54,13 +54,13 @@ for data_idx, data_val in enumerate(data):
     if (data_val > inside_max_energy):
       inside_max_energy = data_val
       inside_max_idx = data_idx
-  elif (data_val < 0.25*thresh):
+  elif (data_val < 0.5*thresh):
     if (inside_event):
       live_events = np.append(live_events, inside_max_idx*avg_bpf)
     inside_max_energy = -1E30
     inside_event = False
 
-template = np.array([0.0, 1.0, 1.75, 2.0, 3.0])
+template = np.array([0.0, 1.0, 1.65, 2.0, 3.0])
 
 for live_event_idx, live_event_time in enumerate(data):
   if (live_event_idx+len(template) > len(live_events)):

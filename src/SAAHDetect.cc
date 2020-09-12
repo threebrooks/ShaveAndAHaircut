@@ -17,6 +17,7 @@ SAAHDetectComponent::SAAHDetectComponent(std::string id, ComponentGraphConfig* c
     mCommand = configPt->get<std::string>("command", "Command");
     mImpulseThreshold = configPt->get<float>("impulse_threshold", "Threshold for detecting impulse");
     mFrameStepSizeMs = configPt->get<float>("frame_step_size_ms", "Frame step size in ms");
+    mMaxImpulseLengthMs = configPt->get<float>("max_impulse_length_ms", "Maximum allowed length for an impulse");
     mAvgBPM = configPt->get<float>("expected_bpm", "Expected BPM of the pattern");
     std::string templateString = configPt->get<std::string>("pattern_template", "csv of pattern"); 
     std::vector<std::string> beats;
@@ -41,6 +42,7 @@ SAAHDetectComponent::SAAHDetectComponent(std::string id, ComponentGraphConfig* c
 }
 
 bool SAAHDetectComponent::isEvent(Vector x) {
+  //std::cout << x.transpose() << std::endl;
   auto& y = mTemplate;
   int N = x.size();
   float S_x = x.sum();
@@ -59,6 +61,7 @@ bool SAAHDetectComponent::isEvent(Vector x) {
   rmse /= N;
   rmse = sqrt(rmse);
   float speedup = (y[N-1]-y[0])/(x[N-1]-x[0]);
+  //std::cout << "rmse: " << rmse << " speedup: " << speedup << std::endl;
   if (rmse > mMaxRMSE) return false;
   if ((speedup > mMaxSpeedup) || (speedup < 1/mMaxSpeedup))  return false;
   return true;
@@ -75,15 +78,20 @@ void SAAHDetectComponent::ProcessMessage(const DecoderMessageBlock& msgBlock) {
       mTotalFrameCount++;
       float data_val = feats(data_idx);
       if (data_val > mImpulseThreshold) {
+        if (!mInsideEvent) mImpulseBeginIdx = mTotalFrameCount;
         mInsideEvent = true;
         if (data_val > mInsideMaxEnergy) {
           mInsideMaxEnergy = data_val;
           mInsideMaxIdx = mTotalFrameCount;
         }
-     } else if (data_val < 0.25*mImpulseThreshold) {
+     } else if (data_val < 0.5*mImpulseThreshold) {
         if (mInsideEvent) {
-          mAccumEvents.conservativeResize(mAccumEvents.size()+1);
-          mAccumEvents(mAccumEvents.size()-1) = (mInsideMaxIdx-1)*avg_bpf;
+          if ((mTotalFrameCount-mImpulseBeginIdx) < mMaxImpulseLengthMs/mFrameStepSizeMs) {
+            mAccumEvents.conservativeResize(mAccumEvents.size()+1);
+            mAccumEvents(mAccumEvents.size()-1) = (mInsideMaxIdx-1)*avg_bpf;
+          } else {
+            std::cerr << "Too long, dropped. " << (mTotalFrameCount-mImpulseBeginIdx) << " vs " << (mMaxImpulseLengthMs/mFrameStepSizeMs) << std::endl;
+          }
         }
         mInsideMaxEnergy = -FLT_MAX;
         mInsideEvent = false;

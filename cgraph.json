@@ -59,12 +59,13 @@
   {
     "verbose": "false",
     "type": "SAAH:SAAHDetect",
-    "impulse_threshold": "2.0",
+    "impulse_threshold": "1.0",
     "frame_step_size_ms": "$(ENERGY_WINDOW_STEP_SIZE_MS)",
     "expected_bpm": "150",
-    "pattern_template": "0.0,1.0,1.75,2.0,3.0", 
+    "pattern_template": "0.0,1.0,1.7,2.0,3.0", 
     "max_rmse": "0.0625", // 1/16.0
-    "max_speedup": "1.2",
+    "max_speedup": "1.5",
+    "max_impulse_length_ms": "200",
     "command": "./all_lights.sh",
     "inputs": 
     {
@@ -72,7 +73,7 @@
       "conversation_state": "4mic_convstate"
     }
   },
-  "#energy_writer": 
+  "energy_writer": 
   {
     "verbose": "false",
     "type": "FileWriter",
