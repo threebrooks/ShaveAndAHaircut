@@ -37,7 +37,7 @@
     "preemphasis_factor": "0.0",
     "target_sampling_rate": "$(SAMPLE_RATE)",
     "max_out_channels": "1",
-    "output_scale": "4.656612875245796924105750827168e-10", // 1.0/INT32_MAX
+    "output_scale": "0.000030519", // 1.0/INT16_MAX
     "inputs": 
     {
       "conversation_state": "mic_convstate",
