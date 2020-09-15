@@ -14,7 +14,7 @@
     "type": "SoundcardRecorder",
     "sampling_rate": "$(SAMPLE_RATE)",
     "num_channels": "1",
-    "sample_depth": "32",
+    "sample_depth": "16",
     "chunk_size": "$(CAPTURE_CHUNK_SIZE)",
     "start_on_boot": "false",
     "time_upsample_factor": "1",

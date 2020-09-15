@@ -32,6 +32,7 @@ class ShaveAndAHaircut:
    
     if (not rec_device): 
       rec_device = subprocess.Popen('arecord -L | grep "^hw" | head -1', shell=True, stdout = subprocess.PIPE).stdout.read().decode().strip()
+      print("Record device is "+rec_device)
     ovs.add("mic.soundcard_identifier",rec_device)
 
     self.utt_count = -1
@@ -42,14 +43,14 @@ class ShaveAndAHaircut:
     pull_endpoints = godec.pull_endpoints()
     godec.load_godec("online.json", ovs, push_endpoints, pull_endpoints, True)
  
-def start_listening(): 
+  def start_listening(self): 
     self.utt_count += 1
     conv_message = godec.conversation_state_decoder_message(0, "utt_id"+str(self.utt_count), False, "convo_id"+str(self.utt_count), False)
     godec.push_message("soundcard_control", conv_message)
 
-def stop_listening():
+  def stop_listening(self):
     conv_message = godec.conversation_state_decoder_message(1, "utt_id"+str(self.utt_count), True, "convo_id"+str(self.utt_count), True)
     godec.push_message("soundcard_control", conv_message)
 
-def shutdown(): 
+  def shutdown(self): 
     godec.blocking_shutdown()

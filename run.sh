@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-armhf
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-armhf
 
 . ../Godec/install/env.sh
 . install/env.sh
