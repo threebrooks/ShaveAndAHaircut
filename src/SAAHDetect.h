@@ -23,9 +23,6 @@ class SAAHDetectComponent : public LoopProcessor {
     float mMaxSpeedup;
     float mMaxImpulseLengthMs;
 
-    std::string mCommand;
-    bool mDeviceOn;
-
     Vector mAccumEvents;
     int64_t mTotalFrameCount;
     int64_t mImpulseBeginIdx;

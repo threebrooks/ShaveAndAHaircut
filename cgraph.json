@@ -66,14 +66,17 @@
     "max_rmse": "0.0625", // 1/16.0
     "max_speedup": "1.5",
     "max_impulse_length_ms": "200",
-    "command": "./all_lights.sh",
     "inputs": 
     {
       "features": "norm_audio_chunk_energy",
       "conversation_state": "mic_convstate"
+    },
+    "outputs":
+    {
+      "features": "saah_events"
     }
   },
-  "energy_writer": 
+  "#energy_writer": 
   {
     "verbose": "false",
     "type": "FileWriter",

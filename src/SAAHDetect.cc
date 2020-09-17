@@ -14,7 +14,6 @@ std::string SAAHDetectComponent::describeThyself() {
 SAAHDetectComponent::SAAHDetectComponent(std::string id, ComponentGraphConfig* configPt) :
     LoopProcessor(id,configPt) {
 
-    mCommand = configPt->get<std::string>("command", "Command");
     mImpulseThreshold = configPt->get<float>("impulse_threshold", "Threshold for detecting impulse");
     mFrameStepSizeMs = configPt->get<float>("frame_step_size_ms", "Frame step size in ms");
     mMaxImpulseLengthMs = configPt->get<float>("max_impulse_length_ms", "Maximum allowed length for an impulse");
@@ -35,9 +34,8 @@ SAAHDetectComponent::SAAHDetectComponent(std::string id, ComponentGraphConfig* c
     mInsideMaxEnergy = -FLT_MAX;
     mTotalFrameCount = 0;
 
-    mDeviceOn = false;
-
     std::list<std::string> requiredOutputSlots;
+    requiredOutputSlots.push_back(SlotFeatures);
     initOutputs(requiredOutputSlots);
 }
 
@@ -100,10 +98,14 @@ void SAAHDetectComponent::ProcessMessage(const DecoderMessageBlock& msgBlock) {
     
     while(mAccumEvents.size() >= mTemplate.size()) {
       if (isEvent(mAccumEvents.head(mTemplate.size()))) {
-        mDeviceOn = !mDeviceOn;
-        std::string fullCommand = mCommand + " " + (mDeviceOn ? "on" : "off");
         std::cout << "Found event!" << std::endl;
-        system(fullCommand.c_str());
+        Matrix outMatrix(1,1);
+        outMatrix(0,0) = 0.0;
+        std::vector<uint64_t> outTimings;
+        outTimings.push_back(convStateMsg->getTime());
+        pushToOutputs(SlotFeatures, FeaturesDecoderMessage::create(
+                      convStateMsg->getTime(), convStateMsg->mUtteranceId,
+                      outMatrix, "dummy", outTimings));
       }
       mAccumEvents = mAccumEvents.tail(mAccumEvents.size()-1);
     }

@@ -4,10 +4,11 @@ import numpy as np
 import gc
 import subprocess
 import time
+import threading
 
 class ShaveAndAHaircut:
 
-  def __init__(self, rec_device=None):
+  def __init__(self, event_callback, rec_device=None):
     ovs = godec.overrides()
   
     sample_rate = 48000
@@ -41,7 +42,20 @@ class ShaveAndAHaircut:
     push_endpoints.add("soundcard_control")
     
     pull_endpoints = godec.pull_endpoints()
+    pull_endpoints.add("saah_events", ["saah_events"])
     godec.load_godec("online.json", ovs, push_endpoints, pull_endpoints, True)
+
+    self.event_pull_thread = threading.Thread(target=self.event_pull)
+    self.event_pull_thread.daemon=True 
+    self.event_pull_thread.start(); 
+
+  def event_pull(self):
+    while(True):
+      # Behold the shit-tasticness of Python. This is a proper, nicely blocking call. However, Python can't deal with that. So instead we set the timeout to 0.5 just so we can yield the thread
+      block = godec.pull_message("saah_events", timeout=0.5)
+      if (block != None):
+        print("Got event!")
+      time.sleep(0)
  
   def start_listening(self): 
     self.utt_count += 1
