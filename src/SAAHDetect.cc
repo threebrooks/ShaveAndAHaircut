@@ -35,12 +35,12 @@ SAAHDetectComponent::SAAHDetectComponent(std::string id, ComponentGraphConfig* c
     mTotalFrameCount = 0;
 
     std::list<std::string> requiredOutputSlots;
-    requiredOutputSlots.push_back(SlotFeatures);
+    requiredOutputSlots.push_back(SlotConversationState);
     initOutputs(requiredOutputSlots);
 }
 
 bool SAAHDetectComponent::isEvent(Vector x) {
-  std::cout << x.transpose() << std::endl;
+  //std::cout << x.transpose() << std::endl;
   auto& y = mTemplate;
   int N = x.size();
   float S_x = x.sum();
@@ -59,7 +59,7 @@ bool SAAHDetectComponent::isEvent(Vector x) {
   rmse /= N;
   rmse = sqrt(rmse);
   float speedup = (y[N-1]-y[0])/(x[N-1]-x[0]);
-  std::cout << "rmse: " << rmse << " speedup: " << speedup << std::endl;
+  //std::cout << "rmse: " << rmse << " speedup: " << speedup << std::endl;
   if (rmse > mMaxRMSE) return false;
   if ((speedup > mMaxSpeedup) || (speedup < 1/mMaxSpeedup))  return false;
   return true;
@@ -99,13 +99,8 @@ void SAAHDetectComponent::ProcessMessage(const DecoderMessageBlock& msgBlock) {
     while(mAccumEvents.size() >= mTemplate.size()) {
       if (isEvent(mAccumEvents.head(mTemplate.size()))) {
         std::cout << "Found event!" << std::endl;
-        Matrix outMatrix(1,1);
-        outMatrix(0,0) = 0.0;
-        std::vector<uint64_t> outTimings;
-        outTimings.push_back(convStateMsg->getTime());
-        pushToOutputs(SlotFeatures, FeaturesDecoderMessage::create(
-                      convStateMsg->getTime(), convStateMsg->mUtteranceId,
-                      outMatrix, "dummy", outTimings));
+        uint64_t time = convStateMsg->getTime(); 
+        pushToOutputs(SlotConversationState, ConversationStateDecoderMessage::create(time,  "utt"+time, true, "convo"+time, true));
       }
       mAccumEvents = mAccumEvents.tail(mAccumEvents.size()-1);
     }
