@@ -113,6 +113,9 @@ set_target_properties(godec_SAAH PROPERTIES OUTPUT_NAME "godec_SAAH")
 
 install (TARGETS godec_SAAH DESTINATION .)
 install (FILES ${PROJECT_SOURCE_DIR}/env.sh DESTINATION .)
+install (FILES ${PROJECT_SOURCE_DIR}/ShaveAndAHaircut.py DESTINATION .)
+install (FILES ${PROJECT_SOURCE_DIR}/cgraph.json DESTINATION .)
+install (FILES ${PROJECT_SOURCE_DIR}/online.json DESTINATION .)
 install (DIRECTORY ${GODEC_ROOT}/ DESTINATION Godec)
 install (DIRECTORY ${BOOST_LIBRARYDIR} DESTINATION Godec/bin PATTERN *.so )
 
