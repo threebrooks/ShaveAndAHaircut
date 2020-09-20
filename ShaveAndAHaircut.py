@@ -1,4 +1,5 @@
 import sys
+import os
 import godec
 import numpy as np
 import gc
@@ -42,7 +43,8 @@ class ShaveAndAHaircut:
     
     pull_endpoints = godec.pull_endpoints()
     pull_endpoints.add("saah_events", ["saah_events"])
-    godec.load_godec("online.json", ovs, push_endpoints, pull_endpoints, True)
+    basedir = os.path.dirname(os.path.realpath(__file__))
+    godec.load_godec(basedir+"/online.json", ovs, push_endpoints, pull_endpoints, True)
 
   def wait_for_event(self):
     while(True):
