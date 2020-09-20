@@ -76,7 +76,7 @@
       "conversation_state": "saah_events"
     }
   },
-  "energy_writer": 
+  "#energy_writer": 
   {
     "verbose": "false",
     "type": "FileWriter",
@@ -89,7 +89,7 @@
       "conversation_state": "mic_convstate"
     }
   },
-  "audio_writer": 
+  "#audio_writer": 
   {
     "verbose": "false",
     "type": "FileWriter",
