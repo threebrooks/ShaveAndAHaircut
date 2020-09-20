@@ -21,12 +21,13 @@ class SAAHDetectComponent : public LoopProcessor {
     Vector mTemplate;
     float mMaxRMSE;
     float mMaxSpeedup;
-    float mMaxImpulseLengthMs;
+
+    int64_t mTotalFrameCount;
 
     Vector mAccumEvents;
     std::vector<uint64_t> mAccumEventTimestamps;
-    int64_t mTotalFrameCount;
-    int64_t mImpulseBeginIdx;
+    Vector mAccumGapEnergies;
+    int64_t mAccumGapEnergyCount;
 
     bool mInsideEvent;
     int64_t mInsideMaxIdx;

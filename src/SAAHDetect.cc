@@ -16,7 +16,6 @@ SAAHDetectComponent::SAAHDetectComponent(std::string id, ComponentGraphConfig* c
 
     mImpulseThreshold = configPt->get<float>("impulse_threshold", "Threshold for detecting impulse");
     mFrameStepSizeMs = configPt->get<float>("frame_step_size_ms", "Frame step size in ms");
-    mMaxImpulseLengthMs = configPt->get<float>("max_impulse_length_ms", "Maximum allowed length for an impulse");
     mAvgBPM = configPt->get<float>("expected_bpm", "Expected BPM of the pattern");
     std::string templateString = configPt->get<std::string>("pattern_template", "csv of pattern"); 
     std::vector<std::string> beats;
@@ -34,6 +33,9 @@ SAAHDetectComponent::SAAHDetectComponent(std::string id, ComponentGraphConfig* c
     mInsideMaxTimestamp = -1;
     mInsideMaxEnergy = -FLT_MAX;
     mTotalFrameCount = 0;
+    mAccumGapEnergies = Vector(1);
+    mAccumGapEnergies(0) = 0;
+    mAccumGapEnergyCount = 0;
 
     std::list<std::string> requiredOutputSlots;
     requiredOutputSlots.push_back(SlotConversationState);
@@ -60,7 +62,7 @@ bool SAAHDetectComponent::isEvent(Vector x) {
   rmse /= N;
   rmse = sqrt(rmse);
   float speedup = (y[N-1]-y[0])/(x[N-1]-x[0]);
-  //std::cout << "rmse: " << rmse << " speedup: " << speedup << std::endl;
+  std::cout << "rmse: " << rmse << " speedup: " << speedup << std::endl;
   if (rmse > mMaxRMSE) return false;
   if ((speedup > mMaxSpeedup) || (speedup < 1/mMaxSpeedup))  return false;
   return true;
@@ -76,36 +78,45 @@ void SAAHDetectComponent::ProcessMessage(const DecoderMessageBlock& msgBlock) {
       mTotalFrameCount++;
       float data_val = feats(data_idx);
       if (data_val > mImpulseThreshold) {
-        if (!mInsideEvent) mImpulseBeginIdx = mTotalFrameCount;
+        if (!mInsideEvent) {
+          mAccumGapEnergies(mAccumGapEnergies.size()-1) /= mAccumGapEnergyCount;
+          mAccumGapEnergies.conservativeResize(mAccumGapEnergies.size()+1);
+          mAccumGapEnergies(mAccumGapEnergies.size()-1) = 0;
+          mAccumGapEnergyCount = 0;
+        }
         mInsideEvent = true;
         if (data_val > mInsideMaxEnergy) {
           mInsideMaxEnergy = data_val;
           mInsideMaxIdx = mTotalFrameCount;
           mInsideMaxTimestamp = featsMsg->mFeatureTimestamps[data_idx];
         }
-     } else if (data_val < 0.5*mImpulseThreshold) {
+      } else if (data_val < 0.5*mImpulseThreshold) {
         if (mInsideEvent) {
-          if ((mTotalFrameCount-mImpulseBeginIdx) < mMaxImpulseLengthMs/mFrameStepSizeMs) {
-            mAccumEvents.conservativeResize(mAccumEvents.size()+1);
-            mAccumEvents(mAccumEvents.size()-1) = (mInsideMaxIdx-1)*avg_bpf;
-            mAccumEventTimestamps.push_back(mInsideMaxTimestamp);
-            //std::cout << "Added event at " << mAccumEvents(mAccumEvents.size()-1) << ", energy " << mInsideMaxEnergy << std::endl; 
-          } else {
-            std::cerr << "Too long, dropped. " << (mTotalFrameCount-mImpulseBeginIdx) << " vs " << (mMaxImpulseLengthMs/mFrameStepSizeMs) << std::endl;
+          mAccumEvents.conservativeResize(mAccumEvents.size()+1);
+          mAccumEvents(mAccumEvents.size()-1) = (mInsideMaxIdx-1)*avg_bpf;
+          mAccumEventTimestamps.push_back(mInsideMaxTimestamp);
+          //std::cout << "Added event at " << mAccumEvents(mAccumEvents.size()-1) << ", energy " << mInsideMaxEnergy << std::endl; 
+          if (mAccumEvents.size() >= mTemplate.size()) {
+            if (mAccumEvents.size() != mTemplate.size() || mAccumGapEnergies.size() != mTemplate.size()+1) GODEC_ERR << "Ugh! " << mAccumEvents.size() << " " << mAccumGapEnergies.size();
+std::cout << mAccumGapEnergies.head(mTemplate.size()).mean() << std::endl; 
+            if (mAccumGapEnergies.head(mTemplate.size()).mean() < 0.25*mImpulseThreshold && isEvent(mAccumEvents)) {
+              uint64_t time = mAccumEventTimestamps[mTemplate.size()-1]; 
+              std::string uttId = boost::str(boost::format("utt_%1%") % time);
+              pushToOutputs(SlotConversationState, ConversationStateDecoderMessage::create(time,  uttId, true, "convo", true));
+            }
+            mAccumEvents = (Vector)mAccumEvents.tail(mAccumEvents.size()-1);
+            mAccumGapEnergies = (Vector)mAccumGapEnergies.tail(mAccumGapEnergies.size()-1);
+            mAccumEventTimestamps.erase(mAccumEventTimestamps.begin());
           }
+        } else {
+          mAccumGapEnergies(mAccumGapEnergies.size()-1) += data_val;
+          mAccumGapEnergyCount++;
         }
         mInsideMaxEnergy = -FLT_MAX;
         mInsideEvent = false;
+      } else {
+          mAccumGapEnergies(mAccumGapEnergies.size()-1) += data_val;
+          mAccumGapEnergyCount++;
       }
-    }
-    
-    while(mAccumEvents.size() >= mTemplate.size()) {
-      if (isEvent(mAccumEvents.head(mTemplate.size()))) {
-        uint64_t time = mAccumEventTimestamps[mTemplate.size()-1]; 
-        std::string uttId = boost::str(boost::format("utt_%1%") % time);
-        pushToOutputs(SlotConversationState, ConversationStateDecoderMessage::create(time,  uttId, true, "convo", true));
-      }
-      mAccumEvents = (Vector)mAccumEvents.tail(mAccumEvents.size()-1);
-      mAccumEventTimestamps.erase(mAccumEventTimestamps.begin());
-    }
+   }
 }

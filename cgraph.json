@@ -65,7 +65,6 @@
     "pattern_template": "0.0,1.0,1.7,2.0,3.0", 
     "max_rmse": "0.0625", // 1/16.0
     "max_speedup": "1.5",
-    "max_impulse_length_ms": "200",
     "inputs": 
     {
       "features": "norm_audio_chunk_energy",
