@@ -31,6 +31,7 @@ SAAHDetectComponent::SAAHDetectComponent(std::string id, ComponentGraphConfig* c
     mMaxSpeedup = configPt->get<float>("max_speedup", "max speedup");
     mInsideEvent = false;
     mInsideMaxIdx = -1;
+    mInsideMaxTimestamp = -1;
     mInsideMaxEnergy = -FLT_MAX;
     mTotalFrameCount = 0;
 
@@ -80,12 +81,14 @@ void SAAHDetectComponent::ProcessMessage(const DecoderMessageBlock& msgBlock) {
         if (data_val > mInsideMaxEnergy) {
           mInsideMaxEnergy = data_val;
           mInsideMaxIdx = mTotalFrameCount;
+          mInsideMaxTimestamp = featsMsg->mFeatureTimestamps[data_idx];
         }
      } else if (data_val < 0.5*mImpulseThreshold) {
         if (mInsideEvent) {
           if ((mTotalFrameCount-mImpulseBeginIdx) < mMaxImpulseLengthMs/mFrameStepSizeMs) {
             mAccumEvents.conservativeResize(mAccumEvents.size()+1);
             mAccumEvents(mAccumEvents.size()-1) = (mInsideMaxIdx-1)*avg_bpf;
+            mAccumEventTimestamps.push_back(mInsideMaxTimestamp);
             //std::cout << "Added event at " << mAccumEvents(mAccumEvents.size()-1) << ", energy " << mInsideMaxEnergy << std::endl; 
           } else {
             std::cerr << "Too long, dropped. " << (mTotalFrameCount-mImpulseBeginIdx) << " vs " << (mMaxImpulseLengthMs/mFrameStepSizeMs) << std::endl;
@@ -98,10 +101,11 @@ void SAAHDetectComponent::ProcessMessage(const DecoderMessageBlock& msgBlock) {
     
     while(mAccumEvents.size() >= mTemplate.size()) {
       if (isEvent(mAccumEvents.head(mTemplate.size()))) {
-        std::cout << "Found event!" << std::endl;
-        uint64_t time = convStateMsg->getTime(); 
-        pushToOutputs(SlotConversationState, ConversationStateDecoderMessage::create(time,  "utt"+time, true, "convo"+time, true));
+        uint64_t time = mAccumEventTimestamps[mTemplate.size()-1]; 
+        std::string uttId = boost::str(boost::format("utt_%1%") % time);
+        pushToOutputs(SlotConversationState, ConversationStateDecoderMessage::create(time,  uttId, true, "convo", true));
       }
-      mAccumEvents = mAccumEvents.tail(mAccumEvents.size()-1);
+      mAccumEvents = (Vector)mAccumEvents.tail(mAccumEvents.size()-1);
+      mAccumEventTimestamps.erase(mAccumEventTimestamps.begin());
     }
 }

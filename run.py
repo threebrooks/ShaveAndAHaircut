@@ -1,12 +1,13 @@
-#import asyncio
+import asyncio
 import ShaveAndAHaircut as SAAH
 import sys
-#from kasa import SmartPlug
-#from phue import Bridge
+import numpy as np
+from kasa import SmartPlug
+from phue import Bridge
 
-#ikealicht = SmartPlug("192.168.86.155")
-#biglight = Bridge('192.168.86.26')
-#biglight.connect()
+ikealicht = SmartPlug("192.168.86.155")
+biglight = Bridge('192.168.86.26')
+biglight.connect()
 
 async def Ikealicht(onoff):
   await ikealicht.update()
@@ -27,8 +28,8 @@ saah.start_listening()
 onoff = True
 while(saah.wait_for_event()):
   onoff = not onoff
-  #asyncio.run(Ikealicht(onoff))
-  #asyncio.run(Biglight(onoff))
+  asyncio.run(Ikealicht(onoff))
+  asyncio.run(Biglight(onoff))
   print("Onoff: "+str(onoff))
 saah.stop_listening()
 saah.shutdown()
