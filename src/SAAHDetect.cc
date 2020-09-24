@@ -98,8 +98,7 @@ void SAAHDetectComponent::ProcessMessage(const DecoderMessageBlock& msgBlock) {
           //std::cout << "Added event at " << mAccumEvents(mAccumEvents.size()-1) << ", energy " << mInsideMaxEnergy << std::endl; 
           if (mAccumEvents.size() >= mTemplate.size()) {
             if (mAccumEvents.size() != mTemplate.size() || mAccumGapEnergies.size() != mTemplate.size()+1) GODEC_ERR << "Ugh! " << mAccumEvents.size() << " " << mAccumGapEnergies.size();
-std::cout << mAccumGapEnergies.head(mTemplate.size()).mean() << std::endl; 
-            if (mAccumGapEnergies.head(mTemplate.size()).mean() < 0.25*mImpulseThreshold && isEvent(mAccumEvents)) {
+            if (mAccumGapEnergies.head(mTemplate.size()).mean() < 0.0 && isEvent(mAccumEvents)) {
               uint64_t time = mAccumEventTimestamps[mTemplate.size()-1]; 
               std::string uttId = boost::str(boost::format("utt_%1%") % time);
               pushToOutputs(SlotConversationState, ConversationStateDecoderMessage::create(time,  uttId, true, "convo", true));
